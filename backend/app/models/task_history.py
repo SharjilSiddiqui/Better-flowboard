@@ -4,6 +4,7 @@ from datetime import datetime, UTC
 from app.extensions.db import db
 
 
+
 class TaskHistory(db.Model):
     __tablename__ = "task_history"
 
