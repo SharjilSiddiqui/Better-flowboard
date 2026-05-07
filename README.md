@@ -52,6 +52,7 @@ Key engineering priorities:
 
 - Create tasks
 - View tasks
+- Delete tasks
 - Workflow-based task transitions
 - Controlled state management
 - Audit history tracking
@@ -192,6 +193,8 @@ This prevents invalid states from entering the system.
 
 # Database Design
 
+Deleting a task also removes its associated task history entries to maintain referential integrity.
+
 ## tasks
 
 Stores task metadata and workflow state.
@@ -213,6 +216,7 @@ Covered scenarios:
 - Task creation
 - Invalid payload rejection
 - Task retrieval
+- Task deletion
 - Valid workflow transitions
 - Invalid workflow transitions
 
