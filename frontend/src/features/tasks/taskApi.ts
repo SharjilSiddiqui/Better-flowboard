@@ -19,3 +19,9 @@ export const transitionTask = async (taskId: string, to_status: string) => {
 
   return response.data;
 };
+
+export const deleteTask = async (taskId: string) => {
+  const response = await api.delete(`/tasks/${taskId}`);
+
+  return response.data;
+};

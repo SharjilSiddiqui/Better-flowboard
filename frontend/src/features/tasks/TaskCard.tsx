@@ -1,27 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { transitionTask } from "./taskApi";
+import { transitionTask, deleteTask } from "./taskApi";
 
-import type { Task, TaskStatus } from "../../types/task";
-
-const nextTransitions: Record<TaskStatus, TaskStatus[]> = {
-  TODO: ["IN_PROGRESS", "CANCELLED"],
-
-  IN_PROGRESS: ["IN_REVIEW", "CANCELLED"],
-
-  IN_REVIEW: ["DONE", "IN_PROGRESS"],
-
-  DONE: [],
-
-  CANCELLED: [],
+type Task = {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
 };
 
-export const TaskCard = ({ task }: { task: Task }) => {
+type Props = {
+  task: Task;
+};
+
+export const TaskCard = ({ task }: Props) => {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: ({ taskId, status }: { taskId: string; status: string }) =>
-      transitionTask(taskId, status),
+  const transitionMutation = useMutation({
+    mutationFn: (newStatus: string) => transitionTask(task.id, newStatus),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -30,41 +26,62 @@ export const TaskCard = ({ task }: { task: Task }) => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteTask(task.id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+    },
+  });
+
+  const getNextStatuses = () => {
+    switch (task.status) {
+      case "TODO":
+        return ["IN_PROGRESS", "CANCELLED"];
+
+      case "IN_PROGRESS":
+        return ["DONE", "CANCELLED"];
+
+      default:
+        return [];
+    }
+  };
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-xl font-semibold">{task.title}</h3>
-
-          <p className="text-slate-400 mt-2">{task.description}</p>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-semibold text-white">{task.title}</h2>
 
         <div className="flex gap-2">
-          <span className="bg-slate-800 px-3 py-1 rounded-full text-sm">
+          <span className="px-4 py-1 rounded-full bg-slate-800 text-white text-sm">
             {task.priority}
           </span>
 
-          <span className="bg-blue-600 px-3 py-1 rounded-full text-sm">
+          <span className="px-4 py-1 rounded-full bg-indigo-600 text-white text-sm">
             {task.status}
           </span>
         </div>
       </div>
 
-      <div className="flex gap-2 mt-6 flex-wrap">
-        {nextTransitions[task.status]?.map((status) => (
+      <div className="flex flex-wrap gap-3">
+        {getNextStatuses().map((status) => (
           <button
             key={status}
-            onClick={() =>
-              mutation.mutate({
-                taskId: task.id,
-                status,
-              })
-            }
-            className="bg-slate-800 hover:bg-slate-700 transition px-4 py-2 rounded-lg text-sm"
+            onClick={() => transitionMutation.mutate(status)}
+            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition"
           >
             Move to {status}
           </button>
         ))}
+
+        <button
+          onClick={() => deleteMutation.mutate()}
+          className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+        >
+          Delete Task
+        </button>
       </div>
     </div>
   );
