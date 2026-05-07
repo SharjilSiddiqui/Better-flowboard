@@ -4,6 +4,8 @@ import { getTasks } from "./taskApi";
 
 import { TaskCard } from "./TaskCard";
 
+import type { Task } from "../../types/task";
+
 export const TaskList = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["tasks"],
