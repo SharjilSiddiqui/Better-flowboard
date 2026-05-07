@@ -70,3 +70,18 @@ def transition_task(task_id):
         return jsonify({
             "error": str(err)
         }), 400
+    
+
+@task_bp.route("/tasks/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    try:
+        TaskService.delete_task(task_id)
+
+        return jsonify({
+            "message": "Task deleted successfully"
+        }), 200
+
+    except ValueError as err:
+        return jsonify({
+            "error": str(err)
+        }), 404    

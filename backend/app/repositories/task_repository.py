@@ -4,6 +4,7 @@ from app.models.task_history import TaskHistory
 
 
 class TaskRepository:
+
     @staticmethod
     def create(task: Task):
         db.session.add(task)
@@ -27,3 +28,20 @@ class TaskRepository:
         db.session.add(history)
         db.session.commit()
         return history
+
+    @staticmethod
+    def delete(task_id):
+        task = Task.query.get(task_id)
+
+        if not task:
+            return None
+
+        # delete task history first
+        TaskHistory.query.filter_by(task_id=task_id).delete()
+
+        # delete task
+        db.session.delete(task)
+
+        db.session.commit()
+
+        return task

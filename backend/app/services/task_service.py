@@ -51,3 +51,12 @@ class TaskService:
         TaskRepository.create_history(history)
 
         return task
+    
+    @staticmethod
+    def delete_task(task_id):
+        task = TaskRepository.get_by_id(task_id)
+
+        if not task:
+            raise ValueError("Task not found")
+
+        TaskRepository.delete(task_id)
